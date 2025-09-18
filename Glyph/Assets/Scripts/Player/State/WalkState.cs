@@ -29,7 +29,11 @@ public class WalkState : PlayerState
         if(Input.GetKeyDown(KeyCode.LeftControl)) stateMachine.ChangeState(playerController.SprintState);
         if(Input.GetKeyDown(KeyCode.C)) stateMachine.ChangeState(playerController.CrouchState);
         if (playerController.CanJump()) stateMachine.ChangeState(playerController.JumpState);
-        if(Input.GetKeyDown(KeyCode.LeftShift)) stateMachine.ChangeState(playerController.DashState);
+        if (Input.GetKeyDown(KeyCode.LeftShift) && playerController.CanDash())
+        {
+            playerController.UseDash();
+            stateMachine.ChangeState(playerController.DashState);
+        }
         if(Input.GetKeyDown(KeyCode.S)) stateMachine.ChangeState(playerController.SlideState);
 
         

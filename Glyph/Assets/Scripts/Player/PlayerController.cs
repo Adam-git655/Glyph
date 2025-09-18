@@ -36,6 +36,11 @@ public class PlayerController : MonoBehaviour
 
     private int _facingDirection = 1;
 
+    private bool canDash = true;
+    private bool hasAirDashed = false;
+    [field: SerializeField] private float dashCooldown = 1f;
+    private float timeSinceLastDash;
+
     [field: SerializeField] public BoxCollider2D DefaultCollider { get; private set; }
     [field: SerializeField] public BoxCollider2D SlideCollider { get; private set; }
     [field: SerializeField] public BoxCollider2D CrouchCollider { get; private set; }
@@ -121,8 +126,16 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         jumpBufferTimer -= Time.deltaTime;
+        timeSinceLastDash += Time.deltaTime;
 
-        if (IsGrounded()) _coyoteTimer = coyoteDuration;
+        if (timeSinceLastDash > dashCooldown)
+            canDash = true;
+
+        if (IsGrounded())
+        {
+            _coyoteTimer = coyoteDuration;
+            hasAirDashed = false;
+        }
         else _coyoteTimer -= Time.deltaTime;
         
         StateMachine.CurrentState.Update();
@@ -140,6 +153,22 @@ public class PlayerController : MonoBehaviour
     {
         return (Input.GetKeyDown(KeyCode.Space) && (_coyoteTimer > 0 || IsGrounded()))
                || (jumpBufferTimer > 0 && IsGrounded());
+    }
+
+    public bool CanDash()
+    {
+        if (!canDash) return false;
+        if (!IsGrounded() && hasAirDashed) return false;
+        return true;
+    }
+
+    public void UseDash()
+    {
+        canDash = false;
+        timeSinceLastDash = 0f;
+
+        if (!IsGrounded())
+            hasAirDashed = true;
     }
 
     public bool IsPoleDetected()

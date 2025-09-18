@@ -21,15 +21,23 @@ public class DashState : PlayerState
 
         _dashTimer -= Time.deltaTime;
 
-        if(!playerController.IsGrounded() && playerController.IsPoleDetected()) stateMachine.ChangeState(playerController.PoleClimbState);
-        
-        if (_dashTimer <= 0)
+        if (!playerController.IsGrounded() && playerController.IsPoleDetected())
         {
-            if(playerController.IsMoving()) stateMachine.ChangeState(playerController.IdleState);
-            else stateMachine.ChangeState(playerController.IdleState);
+            stateMachine.ChangeState(playerController.PoleClimbState);
+            return;
         }
-        
-        playerController.Move(Vector2.right * playerController.GetFacingDirection(), playerController.DashSpeed, false);
+
+        if (_dashTimer > 0)
+        {
+            playerController.Move(Vector2.right * playerController.GetFacingDirection(), playerController.DashSpeed, false);
+        }
+        else
+        {
+            if (playerController.IsMoving())
+                stateMachine.ChangeState(playerController.WalkState);
+            else
+                stateMachine.ChangeState(playerController.IdleState);
+        }
     }
 
     public override void Exit()
