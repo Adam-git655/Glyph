@@ -26,8 +26,12 @@ public class IdleState : PlayerState
         if(playerController.IsMoving() && Input.GetKey(KeyCode.LeftControl)) stateMachine.ChangeState(playerController.SprintState);
         if(Input.GetKeyDown(KeyCode.C)) stateMachine.ChangeState(playerController.CrouchState);
         if(playerController.CanJump()) stateMachine.ChangeState(playerController.JumpState);
-        if(Input.GetKeyDown(KeyCode.LeftShift)) stateMachine.ChangeState(playerController.DashState);
-        
+        if (Input.GetKeyDown(KeyCode.LeftShift) && playerController.CanDash())
+        {
+            playerController.UseDash();
+            stateMachine.ChangeState(playerController.DashState);
+        }
+
         _s = Mathf.Lerp(_s, 0, playerController.Deacceleration * Time.deltaTime);
         playerController.Move(Vector2.right * playerController.GetFacingDirection(), _s, true);
     }

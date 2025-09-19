@@ -15,6 +15,14 @@ public class InteractionDetection : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.E))
         {
+            if (interactableInRange is Obstacle pushableObstacle)
+            {
+                if (pushableObstacle.IsGrabbed())
+                    interactionText.SetActive(true);
+                else
+                    interactionText.SetActive(false);
+            }
+
             interactableInRange?.Interact();
         }
     }
@@ -32,6 +40,9 @@ public class InteractionDetection : MonoBehaviour
     {
         if (collision.TryGetComponent(out IInteractable interactable) && interactable == interactableInRange)
         {
+            if (interactable is Obstacle pushableObstacle && pushableObstacle.IsGrabbed())
+                return;
+
             interactableInRange = null;
             interactionText.SetActive(false);
         }
