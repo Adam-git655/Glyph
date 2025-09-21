@@ -4,13 +4,15 @@ public class PlayerState
 {
     protected PlayerController playerController;
     protected PlayerStateMachine stateMachine;
+    protected PlayerContext playerContext;   
     protected Animator animator;
-        
+    
     private string _animationName;
     
-    public PlayerState(PlayerController playerController , PlayerStateMachine stateMachine , Animator animator , string animationName)
+    public PlayerState(PlayerController playerController ,PlayerContext playerContext ,PlayerStateMachine stateMachine , Animator animator , string animationName)
     {
         this.playerController = playerController;
+        this.playerContext = playerContext;
         this.stateMachine = stateMachine;
         this.animator = animator;
         
@@ -24,6 +26,11 @@ public class PlayerState
 
     public virtual void Update()
     {
+        playerContext.dashCoolDownTimer = Mathf.Clamp(playerContext.dashCoolDownTimer -= Time.deltaTime
+            , -5f, playerContext.dashCooldownDuration);
+
+        playerContext.jumpBufferTimer = Mathf.Clamp(playerContext.jumpBufferTimer -= Time.deltaTime,
+            -5f, playerContext.jumpBufferDuration);
     }
 
     public virtual void Exit()

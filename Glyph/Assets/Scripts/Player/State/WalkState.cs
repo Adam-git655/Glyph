@@ -1,11 +1,11 @@
 using UnityEngine;
 
-public class WalkState : PlayerState
+public class WalkState : GroundState
 {
-    private float _s;
-    private float _oldSpeed;
+   
+    private int walkMultiplierID = Animator.StringToHash("walkMultiplier");
     
-    public WalkState(PlayerController playerController, PlayerStateMachine stateMachine, Animator animator, string animationName) : base(playerController, stateMachine, animator, animationName)
+    public WalkState(PlayerController playerController, PlayerContext playerContext, PlayerStateMachine stateMachine, Animator animator, string animationName) : base(playerController, playerContext, stateMachine, animator, animationName)
     {
     }
 
@@ -13,10 +13,7 @@ public class WalkState : PlayerState
     {
         base.Enter();
         
-        animator.SetFloat("sprintMultiplier" , 1f);
-       
-        _oldSpeed = Mathf.Abs(playerController.GetRigidbody().linearVelocityX);
-        _s = _oldSpeed;
+        animator.SetFloat(walkMultiplierID, 1f);
     }
 
     public override void Update()
@@ -25,17 +22,11 @@ public class WalkState : PlayerState
         
         playerController.Flip();
         
-        if(playerController.IsMoving() == false) stateMachine.ChangeState(playerController.IdleState);
-        if(Input.GetKeyDown(KeyCode.LeftControl)) stateMachine.ChangeState(playerController.SprintState);
-        if(Input.GetKeyDown(KeyCode.C)) stateMachine.ChangeState(playerController.CrouchState);
-        if (playerController.CanJump()) stateMachine.ChangeState(playerController.JumpState);
-        if(Input.GetKeyDown(KeyCode.LeftShift)) stateMachine.ChangeState(playerController.DashState);
-        if(Input.GetKeyDown(KeyCode.S)) stateMachine.ChangeState(playerController.SlideState);
+        if(playerContext.IsMoving() == false) stateMachine.ChangeState(playerController.IdleState);
+        if(playerContext.IsSliding()) stateMachine.ChangeState(playerController.SlideState);
+        if(playerContext.IsCrouching()) stateMachine.ChangeState(playerController.CrouchState);
 
-        
-        _s = Mathf.Lerp(_s, playerController.WalkSpeed, playerController.WalkAcceleration * Time.deltaTime);
-        
-        playerController.Move(Vector2.right * playerController.XInput, _s, true);
+        playerController.Move(playerContext.xInput, playerContext.walkSpeed);
     }
 
     public override void Exit()

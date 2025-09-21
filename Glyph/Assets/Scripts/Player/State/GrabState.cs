@@ -3,8 +3,8 @@ using UnityEngine;
 public class GrabState : PlayerState
 {
     private int _dashDirection;
-    
-    public GrabState(PlayerController playerController, PlayerStateMachine stateMachine, Animator animator, string animationName) : base(playerController, stateMachine, animator, animationName)
+
+    public GrabState(PlayerController playerController, PlayerContext playerContext, PlayerStateMachine stateMachine, Animator animator, string animationName) : base(playerController, playerContext, stateMachine, animator, animationName)
     {
     }
 

@@ -4,8 +4,9 @@ public class PoleClimbState : PlayerState
 {
     private const string _poleClimbMove = "poleClimbMove";
     private bool _climbing = false;
-    
-    public PoleClimbState(PlayerController playerController, PlayerStateMachine stateMachine, Animator animator, string animationName) : base(playerController, stateMachine, animator, animationName)
+
+
+    public PoleClimbState(PlayerController playerController, PlayerContext playerContext, PlayerStateMachine stateMachine, Animator animator, string animationName) : base(playerController, playerContext, stateMachine, animator, animationName)
     {
     }
 
@@ -13,19 +14,16 @@ public class PoleClimbState : PlayerState
     {
         base.Enter();
         
-        playerController.DisableGravity();
     }
 
     public override void Update()
     {
         base.Update();
         
-        if (playerController.IsPoleDetected() == false) stateMachine.ChangeState(playerController.IdleState);
-        
         
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (playerController.XInput != 0 && !Mathf.Approximately(playerController.XInput, playerController.GetFacingDirection()))
+            if (playerContext.xInput != 0 && !Mathf.Approximately(playerContext.xInput, playerController.GetFacingDirection()))
                 stateMachine.ChangeState(playerController.JumpState);
             else
                 stateMachine.ChangeState(playerController.IdleState);
@@ -36,7 +34,7 @@ public class PoleClimbState : PlayerState
         if (yInput != 0) _climbing = true;
         else _climbing = false;
 
-        playerController.Move(Vector2.up * yInput, 40, false);
+        //playerController.Move(Vector2.up * yInput, 40, false);
         
         animator.SetBool(_poleClimbMove, _climbing);
     }
@@ -44,6 +42,5 @@ public class PoleClimbState : PlayerState
     public override void Exit()
     {
         base.Exit();
-        playerController.EnableGravity();
     }
 }

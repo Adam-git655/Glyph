@@ -1,6 +1,4 @@
-using System;
 using System.Collections;
-using UnityEditor.Tilemaps;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -8,38 +6,32 @@ public class PlayerController : MonoBehaviour
 {
     private Rigidbody2D _rb;
     private Animator _animator;
+    private Camera _mainCam;
+
+    private PlayerContext _playerContext;
 
     public PlayerStateMachine StateMachine { get; private set; }
 
-    [SerializeField] private GameObject playerVisual;
-    
     #region PlayerSettings
 
-    [field: SerializeField] public float WalkSpeed { get; private set; }
-    [field: SerializeField] public float RunSpeed { get; private set; }
-    [field: SerializeField] public float CrouchSpeed { get; private set; }
-    [field: SerializeField] public float JumpForce { get; private set; }
-    [field: SerializeField] public float DashSpeed { get; private set; }
-    [field: SerializeField] public float DashDuration { get; private set; } 
-    [field: SerializeField] public float WalkAcceleration { get; private set; }
-    [field: SerializeField] public float RunAcceleration { get; private set; }
-    [field: SerializeField] public float CrouchAcceleration { get; private set; }
-    [field: SerializeField] public float Deacceleration { get; private set; }
-    [field: SerializeField] public float SlideDuration { get; private set; }
-    [field: SerializeField] public float SlideSpeed { get; private set; }
+    [SerializeField] private float walkSpeed;
+    [SerializeField] private float runSpeed;
+    [SerializeField] private float jumpForce;
+    [SerializeField] private int maxJumpCount;
+    [SerializeField] private float dashForce;
+    [SerializeField] private float dashDuration;
+    [SerializeField] private float dashCooldownDuration;
+    [SerializeField] private float slideSpeed;
+    [SerializeField] private float slideDuration;
+    [SerializeField] private float wallSlideSpeed;
     
     private float _coyoteTimer;
     [SerializeField] private float coyoteDuration;
     
-    [HideInInspector] public float jumpBufferTimer;
     [field: SerializeField] public float JumpBufferDuration { get; private set; }
 
     private int _facingDirection = 1;
 
-    [field: SerializeField] public BoxCollider2D DefaultCollider { get; private set; }
-    [field: SerializeField] public BoxCollider2D SlideCollider { get; private set; }
-    [field: SerializeField] public BoxCollider2D CrouchCollider { get; private set; }
-    
     #endregion
 
     #region GroundCheck
@@ -49,7 +41,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform groundCheckPoint;
     [SerializeField] private float groundCheckDistance;
     [SerializeField] public LayerMask groundLayer;
-    
+
+    [SerializeField] private float wallCheckDistance;
+    [SerializeField] private Vector2 wallCheckOffset;
+    [SerializeField] private Vector2 wallCheckSize;
+        
     #endregion
     
     #region PoleCheck
@@ -73,132 +69,186 @@ public class PlayerController : MonoBehaviour
     public DashState DashState { get; private set; }
     public SlideState SlideState { get; private set; }
     public PoleClimbState PoleClimbState { get; private set; }
+    public FallState FallState { get; private set; }
+    public WallSlideState WallSlideState { get; private set; }
+    public WallJumpState WallJumpState { get; private set; }
     
     #endregion
 
+    [SerializeField] private Transform ballThrowPoint;
+    [SerializeField] private GameObject ballPrefab;
+    
     private float _defaultGravity;
     
-    public float XInput
-    {
-        get { return Input.GetAxisRaw("Horizontal"); }
-       private set{}
-    }
-
     private void Awake()
     {
+        _mainCam = Camera.main;
         _rb = GetComponent<Rigidbody2D>();
         _animator = GetComponentInChildren<Animator>();
 
+        _playerContext = new PlayerContext
+        {
+            walkSpeed = walkSpeed,
+            runSpeed = runSpeed,
+            jumpForce = jumpForce,
+            jumpCount = maxJumpCount,
+            dashForce = dashForce,
+            dashDuration = dashDuration,
+            dashCooldownDuration = dashCooldownDuration,
+            slideSpeed = slideSpeed,
+            slideDuration = slideDuration,
+            jumpBufferDuration = JumpBufferDuration,
+            wallSlideSpeed = wallSlideSpeed
+        };
+        
         StateMachine = new PlayerStateMachine();
         
         #region Assign States
 
-        IdleState = new IdleState(this , StateMachine , _animator , "idle");
-        WalkState = new WalkState(this , StateMachine , _animator , "walk");
-        SprintState = new SprintState(this, StateMachine, _animator, "walk");
-        CrouchState = new CrouchState(this, StateMachine, _animator, "crouch");
-        JumpState = new JumpState(this, StateMachine, _animator, "jump");
-        GrabState = new GrabState(this, StateMachine, _animator, "grab");
-        DashState = new DashState(this, StateMachine, _animator, "dash");
-        SlideState = new SlideState(this, StateMachine, _animator, "slide");
-        PoleClimbState = new PoleClimbState(this, StateMachine, _animator, "poleClimb");
+        IdleState = new IdleState(this, _playerContext , StateMachine , _animator , "idle");
+        WalkState = new WalkState(this, _playerContext , StateMachine , _animator , "walk");
+        SprintState = new SprintState(this,_playerContext ,StateMachine, _animator, "walk");
+        CrouchState = new CrouchState(this,_playerContext ,StateMachine, _animator, "crouch");
+        JumpState = new JumpState(this,_playerContext ,StateMachine, _animator, "jump");
+        GrabState = new GrabState(this,_playerContext ,StateMachine, _animator, "grab");
+        DashState = new DashState(this,_playerContext ,StateMachine, _animator, "dash");
+        SlideState = new SlideState(this,_playerContext, StateMachine, _animator, "slide");
+        PoleClimbState = new PoleClimbState(this,_playerContext, StateMachine, _animator, "poleClimb");
+        FallState = new FallState(this, _playerContext, StateMachine, _animator, "fall");
+        WallSlideState = new WallSlideState(this, _playerContext, StateMachine, _animator, "wallSlide");
+        WallJumpState = new WallJumpState(this, _playerContext, StateMachine, _animator, "jump");
 
         #endregion
     }
 
     private void Start()
     {
+        _playerContext.moveMode = MoveMode.Walk;
+        
         _facingDirection = 1;
         _defaultGravity = _rb.gravityScale;
 
-        DefaultCollider.enabled = true;
-        SlideCollider.enabled = false;
-        CrouchCollider.enabled = false;
-        
         StateMachine.EnterState(IdleState);
     }
 
     private void Update()
     {
-        jumpBufferTimer -= Time.deltaTime;
+        GetInputs();
+        CheckIsGrounded();
+        CheckIsOnWall();
 
-        if (IsGrounded()) _coyoteTimer = coyoteDuration;
-        else _coyoteTimer -= Time.deltaTime;
-        
         StateMachine.CurrentState.Update();
+        
+        //TryThrowBall();
     }
 
-    public void Move(Vector2 moveDirection, float moveSpeed, bool applyGravity = true)
+    private void GetInputs()
     {
-        if(applyGravity) moveDirection.y = _rb.linearVelocity.y;
-        _rb.linearVelocity = new Vector2(moveDirection.x * moveSpeed, moveDirection.y);
-    }
+        _playerContext.xInput = Input.GetAxisRaw("Horizontal");
+        _playerContext.yInput = Input.GetAxisRaw("Vertical");
 
-    public void ApplyJump() => _rb.AddForce(Vector2.up * JumpForce , ForceMode2D.Impulse);
-
-    public bool CanJump()
-    {
-        return (Input.GetKeyDown(KeyCode.Space) && (_coyoteTimer > 0 || IsGrounded()))
-               || (jumpBufferTimer > 0 && IsGrounded());
-    }
-
-    public bool IsPoleDetected()
-    {
-        return Physics2D.Raycast(poleCheckPoint.position, Vector2.right * _facingDirection, poleCheckDistance,
-            poleLayerMask);
-    }
-    
-    public bool IsGrounded()
-    {
-        return Physics2D.Raycast(groundCheckPoint.position, Vector2.down, groundCheckDistance, groundLayer);
-    }
-
-    public void DisableGravity() => _rb.SetZeroGravity();
-    public void EnableGravity() => _rb.gravityScale = _defaultGravity;
-    
-    public void Flip()
-    {
-        if (XInput is 0) return;
-
-        if (!Mathf.Approximately(XInput, _facingDirection))
+        if (Input.GetKeyDown(KeyCode.Q))
         {
-            _facingDirection *= -1;
-
-            playerVisual.transform.localScale =
-                new Vector3(playerVisual.transform.localScale.x * -1, playerVisual.transform.localScale.y, playerVisual.transform.localScale.z);
-        }        
-    }
-
-    public int GetFacingDirection() => _facingDirection;
-    public bool IsMoving() => XInput != 0;
-    public Rigidbody2D GetRigidbody() => _rb;
-
-    public void Slide()
-    {
-        playerVisual.transform.localPosition = new Vector3(0f, -1.5f, 0f);
-    }
-    
-    public void SlideEnd() => playerVisual.transform.localPosition = new Vector3(0f, -2f, 0f);
-
-    public IEnumerator LerpPlayer(Vector3 start, Vector3 end, float duration)
-    {
-        float timeElapsed = 0f;
-
-        while(timeElapsed < duration)
-        {
-            transform.position = Vector3.Lerp(start, end, timeElapsed / duration);
-            timeElapsed += Time.deltaTime;
-            yield return null;
+            if (_playerContext.moveMode == MoveMode.Walk) _playerContext.moveMode = MoveMode.Sprint;
+            else _playerContext.moveMode = _playerContext.moveMode = MoveMode.Walk;
         }
-
-        EnableGravity();
-        transform.position = end;
     }
+
+    public void ResetVelocity() => _rb.ResetVelocity();
+    
+    private void TryThrowBall()
+    {
+        Vector2 mousePosition = _mainCam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x,
+            Input.mousePosition.y, Mathf.Abs(_mainCam.transform.position.z)));
+        
+        Vector2 direction = (mousePosition - (Vector2)transform.position).normalized;
+
+        /*if (CanThrowBall(mousePosition))
+        {
+            GameObject ball = Instantiate(ballPrefab, ballThrowPoint.position, Quaternion.identity);
+            if (ball.TryGetComponent(out Ball b))
+            {
+                b.Init(direction , 30f);
+            }
+        }*/
+    }
+
+    private bool CanThrowBall(Vector2 mousePosition)
+    {
+        return Input.GetMouseButtonDown(0) &&((_facingDirection == 1 && mousePosition.x > ballThrowPoint.position.x) ||
+          _facingDirection == -1 && mousePosition.x < ballThrowPoint.position.x);
+    }
+    
+    public void Move(float xDirection, float xSpeed,float ySpeed = 0f , bool applyDefaultGravity = true)
+    {
+        Vector2 moveDirection = Vector2.right * xDirection;
+
+        if(applyDefaultGravity) ySpeed = _rb.linearVelocity.y;
+        _rb.linearVelocity = new Vector2(moveDirection.x * xSpeed, ySpeed);
+    }
+    
+    public void ApplyJump() => _rb.AddForce(Vector2.up * jumpForce , ForceMode2D.Impulse);
+
+    public void CheckIsGrounded()
+    {
+        _playerContext.isGrounded = Physics2D.Raycast(groundCheckPoint.position, Vector2.down, groundCheckDistance, groundLayer);
+        if (_playerContext.isGrounded)
+        {
+            if (_rb.linearVelocityY > 0f) return;
+            if(_playerContext.jumpCount != maxJumpCount) _playerContext.jumpCount = maxJumpCount;
+        }
+    }
+
+    public void CheckIsOnWall()
+    {
+        RaycastHit2D h = Physics2D.BoxCast(transform.position + (Vector3)wallCheckOffset, wallCheckSize, 0f,
+            transform.right * _facingDirection, wallCheckDistance, groundLayer);
+        
+        _playerContext.isOnWall = h.collider != null;
+    }
+    
+    public void Flip(float x = 0f)
+    {
+        if (x is not 0) PerformFlip();
+        
+        if (_playerContext.xInput is 0) return;
+
+        if (!Mathf.Approximately(_playerContext.xInput, _facingDirection)) PerformFlip();
+    }
+
+    private void PerformFlip()
+    {
+        _facingDirection *= -1;
+
+        //playerVisual.transform.localScale =
+        //    new Vector3(playerVisual.transform.localScale.x * -1, playerVisual.transform.localScale.y, playerVisual.transform.localScale.z);
+            
+        if (_facingDirection == -1)
+            transform.localEulerAngles = new Vector3(0, 180, 0);
+        else transform.localEulerAngles = Vector3.zero;
+    }
+    
+    public int GetFacingDirection() => _facingDirection;
+    
+    public Rigidbody2D GetRigidbody() => _rb;
 
     private void OnDrawGizmos()
     {
+        if (groundCheckPoint == null) return;
+        if (poleCheckPoint == null) return;
+
+        
+        Gizmos.color = Color.red;
+
+        Gizmos.DrawWireCube(transform.position + (Vector3)wallCheckOffset, wallCheckSize);
+        
         Gizmos.color = Color.white;
         Gizmos.DrawRay(groundCheckPoint.position, Vector2.down * groundCheckDistance);
         Gizmos.DrawRay(poleCheckPoint.position, Vector2.right * _facingDirection * poleCheckDistance);
+
+        Gizmos.color = Color.green;
+        
+        Gizmos.DrawWireCube(transform.position + (Vector3)wallCheckOffset + Vector3.right * _facingDirection * wallCheckDistance , 
+            wallCheckSize);
     }
 }

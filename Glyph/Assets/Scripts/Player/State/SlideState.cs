@@ -4,8 +4,8 @@ public class SlideState : PlayerState
 {
     private float _slideTimer;
     private int _facingDirection;
-    
-    public SlideState(PlayerController playerController, PlayerStateMachine stateMachine, Animator animator, string animationName) : base(playerController, stateMachine, animator, animationName)
+
+    public SlideState(PlayerController playerController, PlayerContext playerContext, PlayerStateMachine stateMachine, Animator animator, string animationName) : base(playerController, playerContext, stateMachine, animator, animationName)
     {
     }
 
@@ -13,49 +13,33 @@ public class SlideState : PlayerState
     {
         base.Enter();
 
-        playerController.SlideCollider.enabled = true;
-        playerController.DefaultCollider.enabled = false;
-        playerController.CrouchCollider.enabled = false;
-
-        _slideTimer = playerController.SlideDuration;
+        _slideTimer = playerContext.slideDuration;
         _facingDirection = playerController.GetFacingDirection();
-        
     }
 
     public override void Update()
     {
         base.Update();
-        playerController.Slide();
-
         
         _slideTimer -= Time.deltaTime;
         
         if (_slideTimer < 0)
         {
-            if (playerController.IsMoving())
+            if (playerContext.IsMoving())
             {
-                if(Input.GetKey(KeyCode.LeftControl)) stateMachine.ChangeState(playerController.SprintState);
+                if(playerContext.IsSprinting()) stateMachine.ChangeState(playerController.SprintState);
                 else stateMachine.ChangeState(playerController.WalkState);
             }
             else stateMachine.ChangeState(playerController.IdleState);
         }
 
-        if (!playerController.IsGrounded())
-        {
-            // GO TO FALL STATE
-        }
+        if (playerContext.isGrounded == false) stateMachine.ChangeState(playerController.FallState);
         
-        playerController.Move(Vector2.right * _facingDirection, playerController.SlideSpeed, true);
+        playerController.Move(_facingDirection, playerContext.slideSpeed);
     }
 
     public override void Exit()
     {
         base.Exit();
-
-        playerController.DefaultCollider.enabled = true;
-        playerController.SlideCollider.enabled = false;
-        playerController.CrouchCollider.enabled = false;
-
-        playerController.SlideEnd();
     }
 }

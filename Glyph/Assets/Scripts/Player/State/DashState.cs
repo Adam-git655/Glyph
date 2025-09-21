@@ -3,8 +3,9 @@ using UnityEngine;
 public class DashState : PlayerState
 {
     private float _dashTimer;
+    private float _dashDirection;
     
-    public DashState(PlayerController playerController, PlayerStateMachine stateMachine, Animator animator, string animationName) : base(playerController, stateMachine, animator, animationName)
+    public DashState(PlayerController playerController, PlayerContext playerContext, PlayerStateMachine stateMachine, Animator animator, string animationName) : base(playerController, playerContext, stateMachine, animator, animationName)
     {
     }
 
@@ -12,7 +13,8 @@ public class DashState : PlayerState
     {
         base.Enter();
 
-        _dashTimer = playerController.DashDuration;
+        _dashTimer = playerContext.dashDuration;
+        _dashDirection = playerController.GetFacingDirection();
     }
 
     public override void Update()
@@ -21,19 +23,27 @@ public class DashState : PlayerState
 
         _dashTimer -= Time.deltaTime;
 
-        if(!playerController.IsGrounded() && playerController.IsPoleDetected()) stateMachine.ChangeState(playerController.PoleClimbState);
+        //if(!playerController.CheckIsGrounded() && playerController.IsPoleDetected()) stateMachine.ChangeState(playerController.PoleClimbState);
         
         if (_dashTimer <= 0)
         {
-            if(playerController.IsMoving()) stateMachine.ChangeState(playerController.IdleState);
-            else stateMachine.ChangeState(playerController.IdleState);
+            if (playerContext.isGrounded)
+            {
+                if (playerContext.IsMoving()) stateMachine.ChangeState(playerController.WalkState);
+                else stateMachine.ChangeState(playerController.IdleState);
+            }else 
+                stateMachine.ChangeState(playerController.FallState);
         }
         
-        playerController.Move(Vector2.right * playerController.GetFacingDirection(), playerController.DashSpeed, false);
+        if(playerContext.IsWallSliding()) stateMachine.ChangeState(playerController.WallSlideState);
+        
+        playerController.Move(_dashDirection, playerContext.dashForce, applyDefaultGravity:false);
     }
 
     public override void Exit()
     {
         base.Exit();
+        playerContext.dashCoolDownTimer = playerContext.dashCooldownDuration;
+        playerController.ResetVelocity();
     }
 }
