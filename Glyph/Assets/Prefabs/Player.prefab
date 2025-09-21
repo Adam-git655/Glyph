@@ -619,6 +619,7 @@ MonoBehaviour:
   coyoteDuration: 0.1
   jumpBufferTimer: 0
   <JumpBufferDuration>k__BackingField: 0.1
+  dashCooldown: 1
   <DefaultCollider>k__BackingField: {fileID: 445787669840557365}
   <SlideCollider>k__BackingField: {fileID: 8274397014613770181}
   <CrouchCollider>k__BackingField: {fileID: 4197625203236838977}

@@ -12,6 +12,8 @@ public class PlayerController : MonoBehaviour
     public PlayerStateMachine StateMachine { get; private set; }
 
     [SerializeField] private GameObject playerVisual;
+
+    [SerializeField] public TrailRenderer trailRenderer;
     
     #region PlayerSettings
 
@@ -168,7 +170,9 @@ public class PlayerController : MonoBehaviour
         timeSinceLastDash = 0f;
 
         if (!IsGrounded())
+        {
             hasAirDashed = true;
+        }
     }
 
     public bool IsPoleDetected()

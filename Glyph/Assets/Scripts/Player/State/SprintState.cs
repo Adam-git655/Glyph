@@ -31,9 +31,13 @@ public class SprintState : PlayerState
         if(playerController.IsMoving() == false) stateMachine.ChangeState(playerController.IdleState);
         if(Input.GetKeyUp(KeyCode.LeftControl)) stateMachine.ChangeState(playerController.WalkState);
         if(playerController.CanJump()) stateMachine.ChangeState(playerController.JumpState);
-        if(Input.GetKeyDown(KeyCode.LeftShift)) stateMachine.ChangeState(playerController.DashState);
         if(Input.GetKeyDown(KeyCode.S)) stateMachine.ChangeState(playerController.SlideState);
-        
+        if (Input.GetKeyDown(KeyCode.LeftShift) && playerController.CanDash())
+        {
+            playerController.UseDash();
+            stateMachine.ChangeState(playerController.DashState);
+        }
+
         _s = Mathf.Lerp(_s, playerController.RunSpeed, playerController.RunAcceleration * Time.deltaTime);
         playerController.Move(Vector2.right * playerController.XInput, _s, true);
     }

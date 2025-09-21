@@ -41,9 +41,13 @@ public class JumpState : PlayerState
         }
 
         if (Input.GetKeyDown(KeyCode.Space)) playerController.jumpBufferTimer = playerController.JumpBufferDuration;
-        if(Input.GetKeyDown(KeyCode.LeftShift)) stateMachine.ChangeState(playerController.DashState);
         if(playerController.IsPoleDetected()) stateMachine.ChangeState(playerController.PoleClimbState);
-        
+        if (Input.GetKeyDown(KeyCode.LeftShift) && playerController.CanDash())
+        {
+            playerController.UseDash();
+            stateMachine.ChangeState(playerController.DashState);
+        }
+
         playerController.Move(Vector2.right * playerController.XInput, playerController.WalkSpeed, true);
     }
 

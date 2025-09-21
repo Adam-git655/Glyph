@@ -13,6 +13,7 @@ public class DashState : PlayerState
         base.Enter();
 
         _dashTimer = playerController.DashDuration;
+        playerController.trailRenderer.emitting = true;
     }
 
     public override void Update()
@@ -42,6 +43,7 @@ public class DashState : PlayerState
 
     public override void Exit()
     {
+        playerController.trailRenderer.emitting = false;
         base.Exit();
     }
 }
