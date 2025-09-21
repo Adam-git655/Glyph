@@ -9,11 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
-  m_Name: LetterH
+  m_Script: {fileID: 11500000, guid: d217ae168c9170243afb0198752b02a7, type: 3}
+  m_Name: H
   m_EditorClassIdentifier: Assembly-CSharp::LetterH
   Icon: {fileID: -7767615571819249126, guid: 09b9ab8c989128b4890c780f59c91066, type: 3}
-  DisplayName: Ability H
+  DisplayName: H
   Range: 10
   _ladderPrefab: {fileID: 2286460731081831300, guid: 887d004066a7e1b468f5436203a0d967, type: 3}
   _segmentHeight: 1

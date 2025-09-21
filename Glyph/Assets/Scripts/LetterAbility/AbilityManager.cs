@@ -50,7 +50,6 @@ public class AbilityManager : MonoBehaviour
             return;
         }
 
-        // Prevent double-subscribe (safe)
         InventoryManager._instance.OnInventoryChanged -= RebuildAbilitiesFromInventory;
         InventoryManager._instance.OnInventoryChanged += RebuildAbilitiesFromInventory;
         Debug.Log("AbilityManager: subscribed to InventoryManager.OnInventoryChanged");

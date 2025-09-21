@@ -9,13 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
-  m_Name: LetterT
+  m_Script: {fileID: 11500000, guid: 7109d560e8d3239428879d83be694be0, type: 3}
+  m_Name: T
   m_EditorClassIdentifier: Assembly-CSharp::LetterT
   Icon: {fileID: -7082345736124097848, guid: 5522759e6b978df40850b047e1d256ec, type: 3}
-  DisplayName: Ability T
-  Range: 5
+  DisplayName: T
+  Range: 0
   tPrefab: {fileID: 8595419208508392842, guid: e2b3def6289468d458ed401cf10889c7, type: 3}
-  spawnOffset: 2
+  spawnOffset: 1
   projectileSpeed: 10
   spinSpeed: 720
