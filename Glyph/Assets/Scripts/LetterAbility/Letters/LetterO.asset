@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: LetterO
+  m_EditorClassIdentifier: Assembly-CSharp::LetterO
+  Icon: {fileID: -1354833635207015962, guid: 6e37e6b5bdb7b494486a60a985c8dfc9, type: 3}
+  DisplayName: ' Ability O'
+  Range: 20
+  _portalPrefabA: {fileID: 5280277221569541092, guid: 7e6032d252e8ee847a0e553290205cf4, type: 3}
+  _portalPrefabB: {fileID: 5189489486266303519, guid: 60202c7ce60c9344c971dcfe8779f05d, type: 3}
+  _obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  _portalRadius: 0.5
+  _portalADistance: 2
+  _minSpawnDistance: 3

@@ -7,6 +7,11 @@ public class Key : MonoBehaviour, IInteractable
         return true;
     }
 
+    public string GetDisplayName()
+    {
+        throw new System.NotImplementedException();
+    }
+
     public void Interact()
     {
         if (!CanInteract())
@@ -15,9 +20,14 @@ public class Key : MonoBehaviour, IInteractable
         PickUpKey();
     }
 
+    public bool Interact(GameObject interactor)
+    {
+        throw new System.NotImplementedException();
+    }
+
     void PickUpKey()
     {
-        PlayerKeys.hasKey = true;   // Player gets the key
-        Destroy(gameObject);        // Remove key from the scene
+        PlayerKeys.hasKey = true;   
+        Destroy(gameObject);        
     }
 }

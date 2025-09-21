@@ -64,4 +64,14 @@ public class Obstacle : MonoBehaviour, IInteractable
     {
         return isGrabbed;
     }
+
+    public string GetDisplayName()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public bool Interact(GameObject interactor)
+    {
+        throw new System.NotImplementedException();
+    }
 }
