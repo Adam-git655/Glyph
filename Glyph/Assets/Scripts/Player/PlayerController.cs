@@ -14,6 +14,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject playerVisual;
 
     [SerializeField] public TrailRenderer trailRenderer;
+
+    [SerializeField] public ParticleSystem DustPS;
+
+    [SerializeField] public Transform respawnPoint;
     
     #region PlayerSettings
 
@@ -37,6 +41,7 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public float JumpBufferDuration { get; private set; }
 
     private int _facingDirection = 1;
+    [field: SerializeField] private float dustVelocityThreshold;
 
     private bool canDash = true;
     private bool hasAirDashed = false;
@@ -195,6 +200,11 @@ public class PlayerController : MonoBehaviour
 
         if (!Mathf.Approximately(XInput, _facingDirection))
         {
+            if (Mathf.Abs(_rb.linearVelocityX) > dustVelocityThreshold)
+            {
+                CreateDust();
+            }
+            
             _facingDirection *= -1;
 
             playerVisual.transform.localScale =
@@ -212,6 +222,17 @@ public class PlayerController : MonoBehaviour
     }
     
     public void SlideEnd() => playerVisual.transform.localPosition = new Vector3(0f, -2f, 0f);
+
+    public void CreateDust()
+    {
+        DustPS.Play();
+    }
+
+    public void Die()
+    {
+        Debug.Log("player dead");
+        transform.position = respawnPoint.position;
+    }
 
     public IEnumerator LerpPlayer(Vector3 start, Vector3 end, float duration)
     {

@@ -15,6 +15,8 @@ public class SprintState : PlayerState
     public override void Enter()
     {
         base.Enter();
+
+        playerController.CreateDust();
         
         animator.SetFloat(sprintMultiplier , 1.3f);
 

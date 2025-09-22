@@ -20,6 +20,7 @@ public class JumpState : PlayerState
         
         playerController.GetRigidbody().ResetVelocityY(); // RESET THE Y VELOCITY BEFORE JUMPING
         playerController.ApplyJump();
+        playerController.CreateDust();
     }
 
     public override void Update()
