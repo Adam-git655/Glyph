@@ -5439,6 +5439,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerVisual: {fileID: 5688275183978782829}
   trailRenderer: {fileID: 0}
+  DustPS: {fileID: 0}
+  respawnPoint: {fileID: 0}
   <WalkSpeed>k__BackingField: 7
   <RunSpeed>k__BackingField: 17
   <CrouchSpeed>k__BackingField: 3.5
@@ -5454,6 +5456,7 @@ MonoBehaviour:
   coyoteDuration: 0.1
   jumpBufferTimer: 0
   <JumpBufferDuration>k__BackingField: 0.1
+  dustVelocityThreshold: 0
   dashCooldown: 1
   <DefaultCollider>k__BackingField: {fileID: 445787669840557365}
   <SlideCollider>k__BackingField: {fileID: 8274397014613770181}
@@ -5594,7 +5597,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.18, y: -0.28}
+  m_Offset: {x: 0.18, y: -0.35251516}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -5604,7 +5607,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1.57, y: 3.41}
+  m_Size: {x: 1.57, y: 3.2649693}
   m_EdgeRadius: 0
 --- !u!1 &3382993993516222050
 GameObject:

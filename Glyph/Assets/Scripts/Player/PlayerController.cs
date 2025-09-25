@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEditor.Tilemaps;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
@@ -29,8 +30,10 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public float DashDuration { get; private set; } 
     [field: SerializeField] public float WalkAcceleration { get; private set; }
     [field: SerializeField] public float RunAcceleration { get; private set; }
+    [field: SerializeField] public float AirAcceleration { get; private set; }
     [field: SerializeField] public float CrouchAcceleration { get; private set; }
     [field: SerializeField] public float Deacceleration { get; private set; }
+    [field: SerializeField] public float AirDeacceleration { get; private set; }
     [field: SerializeField] public float SlideDuration { get; private set; }
     [field: SerializeField] public float SlideSpeed { get; private set; }
     
@@ -81,6 +84,8 @@ public class PlayerController : MonoBehaviour
     public SprintState SprintState { get; private set; }
     public CrouchState CrouchState { get; private set; }
     public JumpState JumpState { get; private set; }
+    public FallState FallState { get; private set; }
+    public LandState LandState { get; private set; }
     public GrabState GrabState { get; private set; }
     public DashState DashState { get; private set; }
     public SlideState SlideState { get; private set; }
@@ -110,6 +115,8 @@ public class PlayerController : MonoBehaviour
         SprintState = new SprintState(this, StateMachine, _animator, "walk");
         CrouchState = new CrouchState(this, StateMachine, _animator, "crouch");
         JumpState = new JumpState(this, StateMachine, _animator, "jump");
+        FallState = new FallState(this, StateMachine, _animator);
+        LandState = new LandState(this, StateMachine, _animator, "land");
         GrabState = new GrabState(this, StateMachine, _animator, "grab");
         DashState = new DashState(this, StateMachine, _animator, "dash");
         SlideState = new SlideState(this, StateMachine, _animator, "slide");
@@ -209,7 +216,21 @@ public class PlayerController : MonoBehaviour
 
             playerVisual.transform.localScale =
                 new Vector3(playerVisual.transform.localScale.x * -1, playerVisual.transform.localScale.y, playerVisual.transform.localScale.z);
-        }        
+
+            //Flip the colliders of the actual player
+
+            Vector2 newOffset = DefaultCollider.offset;
+            newOffset.x *= -1;
+            DefaultCollider.offset = newOffset;
+
+            newOffset = CrouchCollider.offset;
+            newOffset.x *= -1;
+            CrouchCollider.offset = newOffset;
+
+            newOffset = SlideCollider.offset;
+            newOffset.x *= -1;
+            SlideCollider.offset = newOffset;
+        }
     }
 
     public int GetFacingDirection() => _facingDirection;

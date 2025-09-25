@@ -19,16 +19,21 @@ public class PoleClimbState : PlayerState
     public override void Update()
     {
         base.Update();
-        
-        if (playerController.IsPoleDetected() == false) stateMachine.ChangeState(playerController.IdleState);
-        
+
+        if (playerController.IsPoleDetected() == false)
+        {
+            if (playerController.IsGrounded())
+                stateMachine.ChangeState(playerController.IdleState);
+            else
+                stateMachine.ChangeState(playerController.FallState);
+        }
         
         if (Input.GetKeyDown(KeyCode.Space))
         {
             if (playerController.XInput != 0 && !Mathf.Approximately(playerController.XInput, playerController.GetFacingDirection()))
                 stateMachine.ChangeState(playerController.JumpState);
             else
-                stateMachine.ChangeState(playerController.IdleState);
+                stateMachine.ChangeState(playerController.FallState);
         }
 
         float yInput = Input.GetAxisRaw("Vertical");
@@ -36,7 +41,7 @@ public class PoleClimbState : PlayerState
         if (yInput != 0) _climbing = true;
         else _climbing = false;
 
-        playerController.Move(Vector2.up * yInput, 40, false);
+        playerController.Move(Vector2.up * yInput, 70, false);
         
         animator.SetBool(_poleClimbMove, _climbing);
     }

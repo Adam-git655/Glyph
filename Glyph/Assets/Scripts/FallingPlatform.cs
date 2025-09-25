@@ -14,6 +14,7 @@ public class FallingPlatform : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             _rb.bodyType = RigidbodyType2D.Dynamic;
+            _rb.gravityScale = 10f;
             Destroy(gameObject, 3f);
         }
     }

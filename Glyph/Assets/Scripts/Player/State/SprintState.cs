@@ -29,8 +29,9 @@ public class SprintState : PlayerState
         base.Update();
         
         playerController.Flip();
-        
-        if(playerController.IsMoving() == false) stateMachine.ChangeState(playerController.IdleState);
+
+        if (!playerController.IsGrounded() && playerController.GetRigidbody().linearVelocityY < 0) stateMachine.ChangeState(playerController.FallState);
+        if (playerController.IsMoving() == false) stateMachine.ChangeState(playerController.IdleState);
         if(Input.GetKeyUp(KeyCode.LeftControl)) stateMachine.ChangeState(playerController.WalkState);
         if(playerController.CanJump()) stateMachine.ChangeState(playerController.JumpState);
         if(Input.GetKeyDown(KeyCode.S)) stateMachine.ChangeState(playerController.SlideState);

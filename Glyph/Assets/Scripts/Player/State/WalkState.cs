@@ -24,8 +24,9 @@ public class WalkState : PlayerState
         base.Update();
         
         playerController.Flip();
-        
-        if(playerController.IsMoving() == false) stateMachine.ChangeState(playerController.IdleState);
+
+        if (!playerController.IsGrounded() && playerController.GetRigidbody().linearVelocityY < 0) stateMachine.ChangeState(playerController.FallState);
+        if (playerController.IsMoving() == false) stateMachine.ChangeState(playerController.IdleState);
         if(Input.GetKeyDown(KeyCode.LeftControl)) stateMachine.ChangeState(playerController.SprintState);
         if(Input.GetKeyDown(KeyCode.C)) stateMachine.ChangeState(playerController.CrouchState);
         if (playerController.CanJump()) stateMachine.ChangeState(playerController.JumpState);

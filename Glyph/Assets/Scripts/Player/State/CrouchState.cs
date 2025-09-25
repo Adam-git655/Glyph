@@ -29,8 +29,8 @@ public class CrouchState : PlayerState
         base.Update();
 
         playerController.Flip();
-        
-        // TODO : FIRST CHECK IF SOMETHING IS UP THERE DON'T STAND 
+
+        if (!playerController.IsGrounded() && playerController.GetRigidbody().linearVelocityY < 0) stateMachine.ChangeState(playerController.FallState);
 
         if (Input.GetKeyDown(KeyCode.C) && CanStandUp())
         {
@@ -59,7 +59,7 @@ public class CrouchState : PlayerState
     {
         Vector2 colliderCenter = (Vector2)playerController.transform.position + playerController.DefaultCollider.offset;
         Vector2 circlePosition = colliderCenter + new Vector2(0f, playerController.DefaultCollider.size.y / 2f);
-        float circleRadius = 0.3f;
+        float circleRadius = 0.6f;
 
         Collider2D hit = Physics2D.OverlapCircle(circlePosition, circleRadius, playerController.groundLayer);
 

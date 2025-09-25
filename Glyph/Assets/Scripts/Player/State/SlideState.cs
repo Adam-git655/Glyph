@@ -40,11 +40,8 @@ public class SlideState : PlayerState
             else stateMachine.ChangeState(playerController.IdleState);
         }
 
-        if (!playerController.IsGrounded())
-        {
-            // GO TO FALL STATE
-        }
-        
+        if (!playerController.IsGrounded() && playerController.GetRigidbody().linearVelocityY < 0) stateMachine.ChangeState(playerController.FallState);
+
         playerController.Move(Vector2.right * _facingDirection, playerController.SlideSpeed, true);
     }
 

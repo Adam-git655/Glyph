@@ -5,7 +5,7 @@ public class InteractionDetection : MonoBehaviour
 {
     private IInteractable interactableInRange = null;
     public GameObject interactionText;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
         interactionText.SetActive(false);
@@ -13,6 +13,16 @@ public class InteractionDetection : MonoBehaviour
 
     private void Update()
     {
+        if (interactableInRange != null)
+        {
+            interactionText.SetActive(interactableInRange.CanInteract());
+        }
+        else
+        {
+            interactionText.SetActive(false);
+        }
+
+
         if (Input.GetKeyDown(KeyCode.E))
         {
             if (interactableInRange is Obstacle pushableObstacle)
@@ -29,10 +39,9 @@ public class InteractionDetection : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.TryGetComponent(out IInteractable interactable) && interactable.CanInteract())
+        if (collision.TryGetComponent(out IInteractable interactable))
         {
             interactableInRange = interactable;
-            interactionText.SetActive(true);
         }
     }
 

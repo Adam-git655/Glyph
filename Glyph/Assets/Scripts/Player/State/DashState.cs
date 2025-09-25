@@ -34,10 +34,17 @@ public class DashState : PlayerState
         }
         else
         {
-            if (playerController.IsMoving())
-                stateMachine.ChangeState(playerController.WalkState);
+            if (playerController.IsGrounded())
+            {
+                if (playerController.IsMoving())
+                    stateMachine.ChangeState(playerController.WalkState);
+                else
+                    stateMachine.ChangeState(playerController.IdleState);
+            }
             else
-                stateMachine.ChangeState(playerController.IdleState);
+            {
+                stateMachine.ChangeState(playerController.FallState);
+            }
         }
     }
 

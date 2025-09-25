@@ -195,5 +195,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   doorCollider: {fileID: 1361675778622507053}
-  openOffset: {x: 0, y: -15, z: 0}
+  openOffset: {x: 0, y: -17, z: 0}
   openSpeed: 3

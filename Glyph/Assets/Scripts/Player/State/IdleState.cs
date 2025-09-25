@@ -21,8 +21,9 @@ public class IdleState : PlayerState
     public override void Update()
     {
         base.Update();
-        
-        if(playerController.IsMoving()) stateMachine.ChangeState(playerController.WalkState);
+
+        if (!playerController.IsGrounded() && playerController.GetRigidbody().linearVelocityY < 0) stateMachine.ChangeState(playerController.FallState);
+        if (playerController.IsMoving()) stateMachine.ChangeState(playerController.WalkState);
         if(playerController.IsMoving() && Input.GetKey(KeyCode.LeftControl)) stateMachine.ChangeState(playerController.SprintState);
         if(Input.GetKeyDown(KeyCode.C)) stateMachine.ChangeState(playerController.CrouchState);
         if(playerController.CanJump()) stateMachine.ChangeState(playerController.JumpState);

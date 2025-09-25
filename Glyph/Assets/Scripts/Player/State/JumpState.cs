@@ -30,17 +30,8 @@ public class JumpState : PlayerState
         playerController.Flip();
         
         _fixTimer -= Time.deltaTime;
-        
-        if (playerController.IsGrounded() && _fixTimer <= 0)
-        {
-            if (playerController.IsMoving())
-            {
-                if(Input.GetKey(KeyCode.LeftControl)) stateMachine.ChangeState(playerController.SprintState); 
-                else stateMachine.ChangeState(playerController.WalkState);
-                
-            }else stateMachine.ChangeState(playerController.IdleState); 
-        }
 
+        if (playerController.GetRigidbody().linearVelocityY < 0 && _fixTimer <= 0) stateMachine.ChangeState(playerController.FallState);
         if (Input.GetKeyDown(KeyCode.Space)) playerController.jumpBufferTimer = playerController.JumpBufferDuration;
         if(playerController.IsPoleDetected()) stateMachine.ChangeState(playerController.PoleClimbState);
         if (Input.GetKeyDown(KeyCode.LeftShift) && playerController.CanDash())
